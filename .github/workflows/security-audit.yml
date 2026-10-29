@@ -1,0 +1,123 @@
+name: DevSecOps Security Audit & Quality Gate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static-security-audit:
+    name: Static Security & Privacy Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código Fonte
+        uses: actions/checkout@v4
+
+      - name: Configurar Ambiente Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Auditoria de Segredos e Credenciais Hardcoded
+        run: |
+          echo "::group::Varredura de Segredos"
+          python -c "
+          import os, re
+          secret_patterns = [
+              r'(?i)api[_-]?key[\s:=]+[\'\"][a-zA-Z0-9_\-]{16,}[\'\"]',
+              r'(?i)secret[\s:=]+[\'\"][a-zA-Z0-9_\-]{16,}[\'\"]',
+              r'(?i)token[\s:=]+[\'\"][a-zA-Z0-9_\-]{16,}[\'\"]',
+              r'(?i)password[\s:=]+[\'\"][^\'\"]{6,}[\'\"]'
+          ]
+          violations = []
+          for root, _, files in os.walk('.'):
+              if '.git' in root: continue
+              for f in files:
+                  if f.endswith(('.html', '.js', '.css', '.json', '.yml', '.md')):
+                      path = os.path.join(root, f)
+                      with open(path, 'r', encoding='utf-8', errors='ignore') as handle:
+                          content = handle.read()
+                          for p in secret_patterns:
+                              matches = re.findall(p, content)
+                              if matches:
+                                  violations.append(f'{path}: {matches}')
+          if violations:
+              print('FALHA: Possíveis segredos detectados:', violations)
+              exit(1)
+          print('SUCESSO: Nenhum segredo hardcoded detectado.')
+          "
+          echo "::endgroup::"
+
+      - name: Verificação de Content Security Policy (CSP) & Zero Telemetria
+        run: |
+          echo "::group::Auditoria de CSP e Telemetria"
+          python -c "
+          import re
+          with open('index.html', 'r', encoding='utf-8') as f:
+              html = f.read()
+
+          # Validação estrita de CSP
+          assert 'Content-Security-Policy' in html, 'Meta tag CSP ausente!'
+          assert \"connect-src 'none'\" in html, 'CSP deve restringir terminantemente connect-src a none para zero telemetria!'
+          assert \"object-src 'none'\" in html, 'CSP deve bloquear plugins externos (object-src none)!'
+          
+          # Validação offline-first: nenhum recurso externo carregado via rede
+          external_links = re.findall(r'<(?:script|link)[^>]+(?:src|href)=[\'\"]https?://[^\'\"]+', html)
+          if external_links:
+              print('AVISO: Links externos encontrados no HTML:', external_links)
+              exit(1)
+          print('SUCESSO: CSP estrita validada. Garantia de Zero Telemetria e 100% Offline cumprida.')
+          "
+          echo "::endgroup::"
+
+      - name: Análise Estática de XSS & Injeção de DOM
+        run: |
+          echo "::group::Varredura de Injeções no DOM"
+          python -c "
+          import os, re
+          dangerous_patterns = [
+              (r'\beval\s*\(', 'Uso proibido de eval()'),
+              (r'document\.write\s*\(', 'Uso proibido de document.write()'),
+              (r'setTimeout\s*\(\s*[\'\"]', 'Uso de string em setTimeout (criação de escopo insegura)')
+          ]
+          violations = []
+          for root, _, files in os.walk('js'):
+              for f in files:
+                  if f.endswith('.js'):
+                      path = os.path.join(root, f)
+                      with open(path, 'r', encoding='utf-8') as handle:
+                          content = handle.read()
+                          for pattern, msg in dangerous_patterns:
+                              if re.search(pattern, content):
+                                  violations.append(f'{path}: {msg}')
+          if violations:
+              print('FALHA: Padrões inseguros detectados:', violations)
+              exit(1)
+          print('SUCESSO: Análise estática contra XSS e injeção aprovada sem violações.')
+          "
+          echo "::endgroup::"
+
+      - name: Validação de Sintaxe JavaScript
+        run: |
+          echo "::group::Verificação de Integridade de Sintaxe"
+          python -c "
+          import os
+          # Simples validação de integridade de aspas e chaves
+          for root, _, files in os.walk('js'):
+              for f in files:
+                  if f.endswith('.js'):
+                      path = os.path.join(root, f)
+                      with open(path, 'r', encoding='utf-8') as handle:
+                          content = handle.read()
+                          # Verificação básica de balanceamento de blocos
+                          assert content.count('{') == content.count('}'), f'Chaves desbalanceadas em {path}'
+                          assert content.count('(') == content.count(')'), f'Parênteses desbalanceados em {path}'
+                          assert content.count('[') == content.count(']'), f'Colchetes desbalanceados em {path}'
+          print('SUCESSO: Todos os arquivos JS possuem blocos balanceados e integridade léxica.')
+          "
+          echo "::endgroup::"

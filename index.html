@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="RigDoctor - Suite DevSecOps de Diagnóstico de Hardware, Estabilidade de Drivers, Estimador de FPS e Upgrades. 100% Local e Privado.">
+  <meta name="referrer" content="no-referrer">
+  
+  <!-- Strict Content Security Policy (Zero Telemetria: connect-src 'none') -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+
+  <title>RigDoctor | Hardware Diagnostics & DevSecOps Suite</title>
+  
+  <!-- Estilos Customizados & Design System Dark Theme -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="site-header">
+    <div class="container header-content">
+      <div class="logo-wrap">
+        <div class="logo-badge" aria-hidden="true">🩺</div>
+        <div>
+          <div class="logo-title">RIG-DOCTOR</div>
+          <div class="logo-subtitle">Hardware Diagnostics &amp; DevSecOps Suite</div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="nav-tabs" role="tablist" aria-label="Navegação Principal">
+        <button class="nav-tab-btn active" data-tab="tab-hardware" role="tab" aria-selected="true">
+          <span>🖥️</span> Hardware &amp; SSD
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-performance" role="tab" aria-selected="false">
+          <span>🎮</span> Estimador de FPS
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-drivers" role="tab" aria-selected="false">
+          <span>🛡️</span> Drivers &amp; DDU
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-upgrades" role="tab" aria-selected="false">
+          <span>⚡</span> Simulador de Upgrade
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-security" role="tab" aria-selected="false">
+          <span>🔒</span> Segurança &amp; Backup
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="container mt-6 mb-6" style="flex: 1;">
+
+    <!-- ====================================================================
+         ABA 1: HARDWARE PROFILER & SSD HEALTH
+         ==================================================================== -->
+    <section id="tab-hardware" class="tab-panel active" role="tabpanel">
+      <!-- Quick Presets -->
+      <div class="card mb-4" style="padding: 1rem 1.25rem;">
+        <div class="flex-between" style="flex-wrap: wrap; gap: 0.75rem;">
+          <div style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">
+            ⚡ Carregar Predefinição Rápida:
+          </div>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn btn-secondary btn-sm" id="btn-preset-classic">
+              PC Entrada Clássico (i5 7400 + GTX 1060 + 8GB)
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-preset-budget">
+              Budget Gamer Atual (Ryzen 5 5600 + RX 6600 + 16GB)
+            </button>
+            <button class="btn btn-secondary btn-sm" id="btn-preset-enthusiast">
+              PC High-End (i7 13700K + RTX 4070 + 32GB)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <!-- Hardware Setup Form -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>⚙️</span> Especificações do Rig</h2>
+            <span class="badge badge-emerald">Armazenamento 100% Local</span>
+          </div>
+
+          <!-- Processador (CPU) -->
+          <div class="form-group">
+            <label class="form-label" for="select-cpu">
+              <span>Processador (CPU)</span>
+              <span id="badge-cpu-cores" class="badge badge-slate">- Cores</span>
+            </label>
+            <select id="select-cpu" class="form-select"></select>
+          </div>
+
+          <!-- Placa de Vídeo (GPU) -->
+          <div class="form-group">
+            <label class="form-label" for="select-gpu">
+              <span>Placa de Vídeo (GPU)</span>
+              <span id="badge-gpu-vram" class="badge badge-slate">- VRAM</span>
+            </label>
+            <select id="select-gpu" class="form-select"></select>
+          </div>
+
+          <!-- Memória RAM (Capacidade, Canais e Frequência) -->
+          <div class="grid-3" style="margin-bottom: 1.15rem;">
+            <div>
+              <label class="form-label" for="select-ram-size">Capacidade RAM</label>
+              <select id="select-ram-size" class="form-select">
+                <option value="4">4 GB</option>
+                <option value="8">8 GB (Mínimo)</option>
+                <option value="16">16 GB (Recomendado)</option>
+                <option value="32">32 GB (Ideal)</option>
+                <option value="64">64 GB (Workstation)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="select-ram-channels">Canais (Modo)</label>
+              <select id="select-ram-channels" class="form-select">
+                <option value="1">Single Channel (1 pente)</option>
+                <option value="2">Dual Channel (2 pentes)</option>
+                <option value="4">Quad Channel (4 pentes)</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="select-ram-speed">Frequência</label>
+              <select id="select-ram-speed" class="form-select">
+                <option value="2133">2133 MHz</option>
+                <option value="2400">2400 MHz (DDR4)</option>
+                <option value="2666">2666 MHz</option>
+                <option value="3200">3200 MHz (DDR4 Top)</option>
+                <option value="3600">3600 MHz</option>
+                <option value="5200">5200 MHz (DDR5)</option>
+                <option value="6000">6000 MHz (DDR5)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Armazenamento Tipo & Tamanho -->
+          <div class="grid-2">
+            <div class="form-group">
+              <label class="form-label" for="select-storage-type">Tipo de Unidade</label>
+              <select id="select-storage-type" class="form-select">
+                <option value="sata_ssd">SSD SATA III (500 MB/s)</option>
+                <option value="nvme">SSD NVMe M.2 (2000-7000 MB/s)</option>
+                <option value="hdd">Disco Rígido (HD Mecânico)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-storage-capacity">Capacidade Total (GB)</label>
+              <input type="number" id="input-storage-capacity" class="form-input" min="64" max="8000" step="10">
+            </div>
+          </div>
+
+          <!-- Armazenamento Usado (Slider) -->
+          <div class="form-group">
+            <div class="form-label">
+              <span>Espaço Ocupado no Disco:</span>
+              <span id="label-storage-used-val" class="font-mono text-cyan-400">0 GB</span>
+            </div>
+            <input type="range" id="range-storage-used" class="form-range" min="0" max="1000" step="5">
+          </div>
+        </div>
+
+        <!-- SSD Health & Degradation Monitor -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>💾</span> Monitor de Saúde &amp; Capacidade do SSD</h2>
+            <span id="badge-ssd-status" class="badge badge-emerald">Saudável</span>
+          </div>
+
+          <div class="metric-box mb-4">
+            <div class="metric-title">Nível de Ocupação da Unidade</div>
+            <div id="metric-ssd-percent" class="metric-value text-emerald-400">0%</div>
+            <div id="metric-ssd-breakdown" class="metric-sub">0 GB usados de 0 GB disponíveis</div>
+            
+            <div class="progress-track mt-4">
+              <div id="progress-ssd-bar" class="progress-bar progress-emerald" style="width: 0%;"></div>
+            </div>
+          </div>
+
+          <!-- Dynamic SSD Degradation Alert -->
+          <div id="alert-ssd-box" class="alert-box alert-success">
+            <span style="font-size: 1.25rem;">ℹ️</span>
+            <div id="alert-ssd-text">
+              Armazenamento em estado ideal de operação com reserva adequada de blocos para desgaste e TRIM.
+            </div>
+          </div>
+
+          <!-- Deep Technical Explanation Card -->
+          <div class="mt-4" style="background: rgba(10, 15, 29, 0.4); border: 1px solid var(--border-subtle); border-radius: 0.625rem; padding: 1rem; font-size: 0.8rem; color: var(--text-muted);">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+              <span>🔬</span> Por que SSDs perdem desempenho acima de 80%?
+            </div>
+            <p style="margin-bottom: 0.5rem;">
+              SSDs modernos utilizam memória flash <strong>TLC</strong> ou <strong>QLC</strong>, em conjunto com um cache ultrarrápido chamado <strong>SLC Cache</strong>. Quando o disco ultrapassa 80% de ocupação:
+            </p>
+            <ul style="padding-left: 1.25rem; line-height: 1.6;">
+              <li><strong>Exaustão do Cache SLC:</strong> Gravações caem de 2000 MB/s para míseros 40-80 MB/s.</li>
+              <li><strong>Amplificação de Gravação (Write Amplification):</strong> O controlador gasta ciclos reorganizando blocos gastos.</li>
+              <li><strong>Pausas de Garbage Collection:</strong> O sistema operacional trava momentaneamente em jogos de mundo aberto enquanto busca blocos livres, gerando micro-engasgos (quedas drásticas nos 1% Lows).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ABA 2: ESTIMADOR DE DESEMPENHO (MULTI-GAMES)
+         ==================================================================== -->
+    <section id="tab-performance" class="tab-panel" role="tabpanel">
+      <!-- Game Selector & Presets Grid -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h2 class="card-title"><span>🎮</span> Configurações de Benchmark do Jogo</h2>
+          <span class="badge badge-cyan">Cálculo de Frametime &amp; Pacing</span>
+        </div>
+
+        <div class="grid-3">
+          <!-- Game Choice -->
+          <div>
+            <label class="form-label" for="select-game">Título / Jogo</label>
+            <select id="select-game" class="form-select"></select>
+          </div>
+
+          <!-- Resolution -->
+          <div>
+            <label class="form-label" for="select-resolution">Resolução de Tela</label>
+            <select id="select-resolution" class="form-select"></select>
+          </div>
+
+          <!-- Graphic Preset -->
+          <div>
+            <label class="form-label" for="select-preset">Predefinição Gráfica</label>
+            <select id="select-preset" class="form-select"></select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Performance Gauges -->
+      <div class="grid-3 mb-4">
+        <!-- Average FPS -->
+        <div class="metric-box">
+          <div class="metric-title">FPS Médio Estimado</div>
+          <div id="metric-fps-avg" class="metric-value text-emerald-400">--</div>
+          <div class="metric-sub">Quadros médios por segundo</div>
+        </div>
+
+        <!-- 1% Lows (Stutter indicator) -->
+        <div class="metric-box">
+          <div class="metric-title">1% Low (Quadros Mínimos)</div>
+          <div id="metric-fps-low" class="metric-value text-cyan-400">--</div>
+          <div id="metric-fps-low-desc" class="metric-sub">Estabilidade de frametime</div>
+        </div>
+
+        <!-- Bottleneck Rating -->
+        <div class="metric-box">
+          <div class="metric-title">Índice de Gargalo</div>
+          <div id="metric-bottleneck-title" class="metric-value text-emerald-400" style="font-size: 1.6rem;">Equilibrado</div>
+          <div id="metric-bottleneck-pct" class="metric-sub">0% de desbalanceamento</div>
+        </div>
+      </div>
+
+      <!-- Bottleneck Spectrum Bar & Deep Analysis -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><span>⚖️</span> Espectro de Balanceamento de Hardware</h3>
+          <span id="badge-dominant-type" class="badge badge-emerald">Ideal</span>
+        </div>
+
+        <div class="bottleneck-meter">
+          <div class="spectrum-labels">
+            <span style="color: #fb7185;">Gargalo Severo de CPU</span>
+            <span style="color: #fbbf24;">CPU Limitada</span>
+            <span style="color: #34d399;">Equilíbrio Perfeito</span>
+            <span style="color: #38bdf8;">GPU Bound (Ideal AAA)</span>
+          </div>
+          <div class="spectrum-track">
+            <div id="spectrum-indicator" class="spectrum-indicator" style="left: 50%;"></div>
+          </div>
+        </div>
+
+        <!-- Bottleneck Description Alert -->
+        <div id="alert-bottleneck-box" class="alert-box alert-success">
+          <span style="font-size: 1.25rem;">📊</span>
+          <div id="alert-bottleneck-text">Análise de balanceamento calculada com sucesso.</div>
+        </div>
+      </div>
+
+      <!-- Game Engine Specific Insights -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>💡</span> Diagnóstico da Engine &amp; Recomendações eSports</h3>
+          <span id="badge-game-engine" class="badge badge-purple">Source 2</span>
+        </div>
+        <p id="game-engine-description" class="text-muted" style="margin-bottom: 0.75rem; font-size: 0.9rem;"></p>
+        <div id="game-engine-tips-box" class="alert-box alert-info">
+          <span style="font-size: 1.25rem;">🎯</span>
+          <div id="game-engine-tips"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ABA 3: ESTABILIDADE DE DRIVERS & GUARDIÃO DE ESPORTS (DDU)
+         ==================================================================== -->
+    <section id="tab-drivers" class="tab-panel" role="tabpanel">
+      <!-- Critical Stability Notification -->
+      <div class="card mb-4" style="border-left: 4px solid #f59e0b;">
+        <div class="card-header">
+          <h2 class="card-title"><span>🛡️</span> Guardião de Estabilidade de Drivers &amp; eSports</h2>
+          <span id="badge-driver-verdict" class="badge badge-amber">Atenção Recomendada</span>
+        </div>
+
+        <div class="grid-2">
+          <div>
+            <div class="form-label">Placa de Vídeo Analisada:</div>
+            <div id="driver-gpu-name" style="font-weight: 700; font-size: 1.15rem; color: #fff; margin-bottom: 0.5rem;">
+              NVIDIA GeForce GTX 1060 6GB
+            </div>
+
+            <div class="form-label mt-4">Versão "Golden Driver" Recomendada:</div>
+            <div id="driver-golden-version" class="font-mono text-cyan-400" style="font-size: 1.1rem; font-weight: 700;">
+              GeForce Game Ready 537.58 WHQL
+            </div>
+
+            <div class="form-label mt-4">API Gráfica Indicada:</div>
+            <div id="driver-recommended-api" class="badge badge-blue">
+              DirectX 11 (-dx11)
+            </div>
+          </div>
+
+          <div>
+            <div id="alert-driver-critical" class="alert-box alert-warning">
+              <span style="font-size: 1.5rem;">⚠️</span>
+              <div id="alert-driver-text">
+                Carregando diagnóstico de driver...
+              </div>
+            </div>
+            <div id="driver-notes" class="text-dim" style="font-size: 0.8rem; margin-top: 0.75rem; line-height: 1.5;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DDU Interactive Checklist -->
+      <div class="card mb-4">
+        <div class="card-header">
+          <h3 class="card-title"><span>📋</span> Protocolo de Instalação Limpa DDU (Display Driver Uninstaller)</h3>
+          <span id="badge-ddu-progress" class="badge badge-slate">0/5 Concluído</span>
+        </div>
+        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+          Siga estas 5 etapas estritas para erradicar conflitos de shaders, registros corrompidos e travamentos no CS2 e outros jogos competitivos:
+        </p>
+
+        <div id="ddu-checklist-container">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Windows Update Lockout Guide -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>🔒</span> Bloquear Substituição Automática pelo Windows Update</h3>
+          <span class="badge badge-rose">Prevenção Contra Sobrescrita</span>
+        </div>
+        <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1rem;">
+          O Windows Update tem o péssimo hábito de sobrescrever drivers estáveis ("Golden Drivers") por versões genéricas da Microsoft. Escolha um dos métodos abaixo para travar a versão permanentemente:
+        </p>
+
+        <div class="grid-2">
+          <!-- Método Registro -->
+          <div style="background: rgba(10, 15, 29, 0.5); padding: 1rem; border-radius: 0.625rem; border: 1px solid var(--border-subtle);">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+              Método Registro do Windows (Universal - Todas as Edições)
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+              Crie o valor DWORD no registro para desativar a busca de drivers de GPU nas atualizações:
+            </p>
+            <div class="code-block">reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" /v ExcludeWUDriversInQualityUpdate /t REG_DWORD /d 1 /f</div>
+          </div>
+
+          <!-- Método GPO -->
+          <div style="background: rgba(10, 15, 29, 0.5); padding: 1rem; border-radius: 0.625rem; border: 1px solid var(--border-subtle);">
+            <div style="font-weight: 700; color: #fff; margin-bottom: 0.5rem;">
+              Método Editor de Política de Grupo (Windows Pro / Enterprise)
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+              1. Pressione <kbd>Win + R</kbd> e execute:
+            </p>
+            <div class="code-block">gpedit.msc</div>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">
+              2. Vá em: <code>Modelos Administrativos > Componentes do Windows > Windows Update > Gerenciar atualizações</code> e habilite <strong>"Não incluir drivers com atualizações do Windows"</strong>.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ABA 4: SIMULADOR INTERATIVO DE UPGRADE & ROI (BRL)
+         ==================================================================== -->
+    <section id="tab-upgrades" class="tab-panel" role="tabpanel">
+      <div class="card mb-4">
+        <div class="card-header">
+          <h2 class="card-title"><span>⚡</span> Simulador de Upgrade de Hardware</h2>
+          <span class="badge badge-emerald">Calculadora de ROI em R$</span>
+        </div>
+
+        <div class="grid-3">
+          <!-- Upgrade Component Type -->
+          <div>
+            <label class="form-label" for="select-upgrade-type">Peça Alvo para Substituição</label>
+            <select id="select-upgrade-type" class="form-select">
+              <option value="gpu">Placa de Vídeo (GPU)</option>
+              <option value="cpu">Processador (CPU)</option>
+              <option value="ram">Kit Memória RAM (16GB Dual-Channel 3200MHz)</option>
+              <option value="ssd">Armazenamento (SSD NVMe M.2 1TB Gen4)</option>
+            </select>
+          </div>
+
+          <!-- Target Hardware Item -->
+          <div id="wrap-target-component">
+            <label class="form-label" for="select-upgrade-target">Novo Componente Desejado</label>
+            <select id="select-upgrade-target" class="form-select"></select>
+          </div>
+
+          <!-- Price in BRL -->
+          <div>
+            <label class="form-label" for="input-upgrade-price">Preço Estimado no Brasil (R$)</label>
+            <input type="number" id="input-upgrade-price" class="form-input" min="50" max="25000" step="50">
+          </div>
+        </div>
+      </div>
+
+      <!-- Before vs After Comparison Grid -->
+      <div class="grid-2 mb-4">
+        <!-- Before Card -->
+        <div class="card" style="border-top: 3px solid #64748b;">
+          <div class="card-header">
+            <h3 class="card-title"><span>⏪</span> Configuração Atual</h3>
+            <span class="badge badge-slate">Baseline</span>
+          </div>
+
+          <div style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted);">
+            <div id="sim-current-specs" class="font-mono">Carregando...</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="metric-box">
+              <div class="metric-title">FPS Médio Atual</div>
+              <div id="sim-current-avg" class="metric-value text-muted">--</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-title">1% Low Atual</div>
+              <div id="sim-current-low" class="metric-value text-muted">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- After Card -->
+        <div class="card" style="border-top: 3px solid #10b981;">
+          <div class="card-header">
+            <h3 class="card-title"><span>⏩</span> Com o Novo Upgrade</h3>
+            <span id="badge-sim-roi" class="badge badge-emerald">Excelente Custo-Benefício</span>
+          </div>
+
+          <div style="font-size: 0.9rem; margin-bottom: 1rem; color: var(--text-muted);">
+            <div id="sim-projected-specs" class="font-mono text-cyan-400">Carregando...</div>
+          </div>
+
+          <div class="grid-2">
+            <div class="metric-box">
+              <div class="metric-title">FPS Projetado</div>
+              <div id="sim-projected-avg" class="metric-value text-emerald-400">--</div>
+              <div id="sim-delta-avg" class="metric-sub text-emerald-400">+0% de ganho</div>
+            </div>
+            <div class="metric-box">
+              <div class="metric-title">1% Low Projetado</div>
+              <div id="sim-projected-low" class="metric-value text-cyan-400">--</div>
+              <div id="sim-delta-low" class="metric-sub text-cyan-400">+0% de ganho</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROI Metric & Diagnostic Alert -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>💰</span> Veredito de ROI (Retorno sobre Investimento)</h3>
+          <span id="badge-fps-per-real" class="badge badge-cyan">0.00 FPS / R$ 100</span>
+        </div>
+
+        <div id="alert-sim-verdict" class="alert-box alert-success mb-4">
+          <span style="font-size: 1.5rem;">💡</span>
+          <div id="sim-verdict-text">
+            Calculando análise de custo-benefício...
+          </div>
+        </div>
+
+        <div id="sim-bottleneck-warning" class="alert-box alert-warning" style="display: none;">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          <div id="sim-bottleneck-warning-text"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         ABA 5: SEGURANÇA DEVSECOPS, PRIVACIDADE & BACKUP
+         ==================================================================== -->
+    <section id="tab-security" class="tab-panel" role="tabpanel">
+      <div class="grid-2 mb-4">
+        <!-- Zero-Telemetry Audit Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>🛡️</span> Auditoria DevSecOps &amp; Privacidade</h2>
+            <span class="badge badge-emerald">Zero Telemetria Ativa</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.875rem;">
+            <div class="flex-between" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+              <span class="text-muted">Content Security Policy (CSP):</span>
+              <span class="badge badge-emerald">connect-src 'none' (Strict)</span>
+            </div>
+            <div class="flex-between" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+              <span class="text-muted">Armazenamento de Dados:</span>
+              <span class="badge badge-emerald">100% Local (localStorage)</span>
+            </div>
+            <div class="flex-between" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+              <span class="text-muted">Prevenção contra DOM XSS:</span>
+              <span class="badge badge-emerald">Sanitização Rigorosa (security.js)</span>
+            </div>
+            <div class="flex-between" style="padding: 0.5rem 0; border-bottom: 1px solid var(--border-subtle);">
+              <span class="text-muted">Tamanho dos Dados Locais:</span>
+              <span id="label-storage-bytes" class="font-mono text-cyan-400">0 KB</span>
+            </div>
+            <div class="flex-between" style="padding: 0.5rem 0;">
+              <span class="text-muted">Conexões Externas / Analytics:</span>
+              <span class="badge badge-rose">Zero (Bloqueado por CSP)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Backup, Export & Import Card -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title"><span>💾</span> Backup do Perfil (Exportar &amp; Importar)</h2>
+            <span class="badge badge-cyan">Schema Validado</span>
+          </div>
+
+          <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 1.25rem;">
+            Exporte suas configurações e checklists como um arquivo JSON autenticado com checksum criptográfico, ou restaure um backup existente com validação contra injeção de dados:
+          </p>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+            <button id="btn-export-profile" class="btn btn-primary">
+              <span>📥</span> Exportar Perfil (JSON)
+            </button>
+            
+            <label for="input-import-file" class="btn btn-secondary" style="cursor: pointer;">
+              <span>📤</span> Importar Perfil (JSON)
+            </label>
+            <input type="file" id="input-import-file" accept=".json" style="display: none;">
+          </div>
+
+          <div style="border-top: 1px solid var(--border-subtle); padding-top: 1rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <button id="btn-reset-default" class="btn btn-secondary btn-sm">
+              <span>🔄</span> Restaurar Padrões de Fábrica
+            </button>
+            <button id="btn-purge-data" class="btn btn-danger btn-sm">
+              <span>🗑️</span> Purgar Todos os Dados Locais
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- DevSecOps Compliance Manifesto -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title"><span>📜</span> Manifesto de Segurança da Aplicação</h3>
+          <span class="badge badge-slate">LGPD &amp; GDPR Compliant</span>
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+          <p style="margin-bottom: 0.5rem;">
+            O <strong>RigDoctor</strong> foi desenvolvido com base no princípio de <em>Privacy by Design</em>. Não existem rastreadores, scripts de telemetria da Valve, NVIDIA, AMD ou de terceiros. Seu perfil nunca sai do seu navegador sem seu consentimento explícito através do botão de exportação.
+          </p>
+          <p>
+            O módulo <code>security.js</code> realiza verificação de limites, limpeza de strings contra injeção de scripts (XSS) e bloqueia ataques de poluição de protótipo (Prototype Pollution) durante a desserialização de arquivos JSON.
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div>
+        <strong>RigDoctor</strong> v1.0.0 &bull; Offline-First &amp; Zero-Telemetry
+      </div>
+      <div>
+        Desenvolvido com foco em eSports, hardware veterano e estabilidade de frametimes.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite"></div>
+
+  <!-- Scripts Carregados na Ordem de Dependência -->
+  <script src="js/security.js"></script>
+  <script src="js/database.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

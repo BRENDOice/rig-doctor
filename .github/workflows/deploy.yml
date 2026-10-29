@@ -1,0 +1,52 @@
+name: Deploy RigDoctor to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+# Permissões necessárias para publicar no GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Permite apenas uma implantação simultânea, cancelando compilações em fila
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Código do Repositório
+        uses: actions/checkout@v4
+
+      - name: Validar Integridade dos Arquivos Principais
+        run: |
+          echo "Verificando estrutura estática offline..."
+          test -f index.html || exit 1
+          test -f css/styles.css || exit 1
+          test -f js/security.js || exit 1
+          test -f js/database.js || exit 1
+          test -f js/engine.js || exit 1
+          test -f js/storage.js || exit 1
+          test -f js/app.js || exit 1
+          echo "Estrutura validada com sucesso!"
+
+      - name: Configurar GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload de Artefato para GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - name: Deploy no GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
